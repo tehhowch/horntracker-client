@@ -1,18 +1,18 @@
-var ht = require('../')
-var output = require('./options/output')
-var vars = require('./options/vars')
+const ht = require('../');
+const output = require('./options/output');
+const vars = require('./options/vars');
 
-exports.command = 'top'
-exports.describe = 'display top trap setups'
-exports.builder = function (yargs) {
+exports.command = 'top';
+exports.describe = 'display top trap setups';
+exports.builder = yargs => {
   return yargs
     .options(output.options)
-    .options(vars.options)
+    .options(vars.options);
 }
 
-exports.handler = function (argv) {
-  vars.handler(argv)
+exports.handler = argv => {
+  vars.handler(argv);
   ht.getTopTrapSetups(argv.vars, argv)
     .then(output.handler.bind(output, argv))
-    .catch(console.error.bind(console))
+    .catch(console.error.bind(console));
 }

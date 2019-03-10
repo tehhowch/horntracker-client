@@ -1,10 +1,10 @@
-var ht = require('../')
-var output = require('./options/output')
-var vars = require('./options/vars')
+const ht = require('../');
+const output = require('./options/output');
+const vars = require('./options/vars');
 
-exports.command = 'most <target>'
-exports.describe = 'display most used setups'
-exports.builder = function (yargs) {
+exports.command = 'most <target>';
+exports.describe = 'display most used setups';
+exports.builder = yargs => {
   return yargs
     .options(output.options)
     .options(vars.options)
@@ -20,12 +20,12 @@ exports.builder = function (yargs) {
       defaultDescription: '0 - include all',
       description: 'minimum hunts to include in results',
       type: 'number'
-    })
+    });
 }
 
-exports.handler = function (argv) {
+exports.handler = argv => {
   vars.handler(argv)
   ht.getRecordCountsFromSetupsData(argv.vars, argv)
     .then(output.handler.bind(output, argv))
-    .catch(console.error.bind(console))
+    .catch(console.error.bind(console));
 }

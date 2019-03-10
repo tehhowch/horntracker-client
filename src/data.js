@@ -2,7 +2,7 @@
  * Created by groupsky on 01.11.17.
  */
 
-exports.ENDPOINT = 'http://www.horntracker.com/backend/new/api.php'
+exports.ENDPOINT = 'http://www.horntracker.com/backend/new/api.php';
 
 exports.aliases = {
   // type aliases
@@ -44,9 +44,10 @@ exports.aliases = {
   galleon: 'galleon gouda',
   bs: 'brie string',
   asc: 'ancient string',
+  graveblossom: "graveblossom camembert",
   // location aliases
   mopi: 'moussu picchu'
-}
+};
 
 exports.cached = {
   shield: {
@@ -110,4 +111,4 @@ exports.cached = {
   datetime: {
     date0: 'date0'
   }
-}
+};

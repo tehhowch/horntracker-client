@@ -1,35 +1,28 @@
-var Promise = require('bluebird')
-var _ = require('lodash')
-var request = require('./rawRequest')
-var vars = require('./vars')
+const request = require('./rawRequest');
+const vars = require('./vars');
 
-var defaults = {
+const defaults = {
   'min-chance': 0,
   'min-qty': 0,
-}
+};
 
 module.exports = function (setup, opts) {
   if (!setup) throw new Error('missing setup!')
-  opts = _.defaults(opts || {}, defaults)
+  opts = Object.assign({}, defaults, opts || {});
 
-  setup = vars(setup)
+  setup = vars(setup);
 
   return Promise
     .resolve(setup)
-    .then(function (setup) {
-      return {
-        f: 'getLootFoundData',
-        vars: setup
-      }
-    })
+    .then(setup => ({ f: 'getLootFoundData', vars: setup }))
     .then(request.bind(request, opts))
-    .then(function (data) {
-      if (!data.loot) throw new Error('no loot in response')
-      var sample = +data.totalCaught
-      var res = data.loot
-        .map(function (loot) {
-          var dropTimes = +loot.dropped
-          var quantity = +loot.quant
+    .then(data => {
+      if (!data.loot) throw new Error('no loot in response');
+      const sample = +data.totalCaught;
+      const res = data.loot
+        .map(loot => {
+          const dropTimes = +loot.dropped;
+          const quantity = +loot.quant;
           return {
             id: +loot.lid,
             name: loot.name,
@@ -40,14 +33,12 @@ module.exports = function (setup, opts) {
             sample: sample
           }
         })
-        .filter(function (loot) {
+        .filter(loot => {
           return loot.chance >= opts[ 'min-chance' ] && loot.avgPerCatch >= opts[ 'min-qty' ]
         })
-        .sort(function (a, b) {
-          return b.chance - a.chance
-        })
-      return res
-    })
+        .sort((a, b) => b.chance - a.chance);
+      return res;
+    });
 }
 
-module.defaults = defaults
+module.defaults = defaults;

@@ -1,43 +1,40 @@
-var Promise = require('bluebird')
-var _ = require('lodash')
-var debug = require('debug')('ht:pop')
-var request = require('./rawRequest')
-var utils = require('./utils')
-var vars = require('./vars')
+const debug = require('debug')('ht:pop')
+const request = require('./rawRequest')
+const utils = require('./utils')
+const vars = require('./vars')
 
-var aliases = {
+const aliases = {
   trap: 'weapon',
   trinket: 'charm'
 }
 
-var defaults = {
+const defaults = {
   min: 0,
   target: 'weapon'
 }
 
-module.exports = function (setup, opts) {
-  if (!setup) throw new Error('missing setup!')
-  opts = _.defaults(opts || {}, defaults)
+module.exports = (setup, opts) => {
+  if (!setup) throw new Error('missing setup!');
+  opts = Object.assign({}, defaults, opts || {});
 
-  setup = vars(setup)
+  setup = vars(setup);
 
-  var target = utils.prepareType(opts.target)
-  if (target in aliases) target = aliases[ target ]
+  let target = utils.prepareType(opts.target);
+  if (target in aliases) target = aliases[ target ];
 
   return Promise
     .resolve(setup)
-    .then(function (setup) {
-      return {
+    .then(setup => ({
         f: 'getRecordCountsFromSetupsData',
         vars: setup,
         target: {
           name: target,
           min: opts.min
         }
-      }
-    })
+      })
+    )
     .then(request.bind(request, opts))
-    .then(function (res) { return res.targets })
+    .then(res => res.targets );
 }
 
-module.defaults = defaults
+module.defaults = defaults;

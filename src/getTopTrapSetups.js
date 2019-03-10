@@ -1,30 +1,23 @@
-var Promise = require('bluebird')
-var _ = require('lodash')
-var debug = require('debug')('ht:loot')
-var request = require('./rawRequest')
-var vars = require('./vars')
+const debug = require('debug')('ht:loot');
+const request = require('./rawRequest');
+const vars = require('./vars');
 
-var defaults = {}
+const defaults = {};
 
-module.exports = function (setup, opts) {
-  if (!setup) throw new Error('missing setup!')
-  opts = _.defaults(opts || {}, defaults)
+module.exports = (setup, opts) => {
+  if (!setup) throw new Error('missing setup!');
+  opts = Object.assign({}, defaults, opts || {});
 
-  setup = vars(setup)
+  setup = vars(setup);
 
   return Promise
     .resolve(setup)
-    .then(function (setup) {
-      return {
-        f: 'getTopTrapSetups',
-        vars: setup
-      }
-    })
+    .then(setup => ({ f: 'getTopTrapSetups', vars: setup }))
     .then(request.bind(request, opts))
-    .then(function (data) {
+    .then(data => {
       if (!data.toptraps) throw new Error('no toptraps in response')
-      return data.toptraps
-    })
+      return data.toptraps;
+    });
 }
 
-module.defaults = defaults
+module.defaults = defaults;

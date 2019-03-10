@@ -1,11 +1,11 @@
-var ht = require('../')
-var output = require('./options/output')
-var vars = require('./options/vars')
+const ht = require('../');
+const output = require('./options/output');
+const vars = require('./options/vars');
 
-exports.command = 'pop'
-exports.aliases = 'population'
-exports.describe = 'display mouse population for setup'
-exports.builder = function (yargs) {
+exports.command = 'pop';
+exports.aliases = 'population';
+exports.describe = 'display mouse population for setup';
+exports.builder = yargs => {
   return yargs
     .options(output.options)
     .options(vars.options)
@@ -26,13 +26,13 @@ exports.builder = function (yargs) {
       description: 'minimum attraction to include mouse in the population data',
       number: true,
       requiresArg: true
-    })
+    });
 }
 
-exports.handler = function (argv) {
-  vars.handler(argv)
-  if (argv.verbose) console.log(argv)
+exports.handler = argv => {
+  vars.handler(argv);
+  if (argv.verbose) console.log(argv);
   ht.getSAEncounterRateData(argv.vars, argv)
     .then(output.handler.bind(output, argv))
-    .catch(console.error.bind(console))
+    .catch(console.error.bind(console));
 }

@@ -1,9 +1,9 @@
-var ht = require('../')
-var output = require('./options/output')
+const ht = require('../');
+const output = require('./options/output');
 
-exports.command = 'id <type> <name>'
-exports.describe = 'get the id of item named "name"'
-exports.builder = function (yargs) {
+exports.command = 'id <type> <name>';
+exports.describe = 'get the id of item named "name"';
+exports.builder = (yargs) => {
   return yargs
     .options(output.options)
     .positional('type', {
@@ -14,12 +14,12 @@ exports.builder = function (yargs) {
     })
     .positional('name', {
       describe: 'name of item'
-    })
+    });
 }
 
-exports.handler = function (argv) {
-  if (argv.verbose) console.info('getting id of ' + argv.type + ' "' + argv.name + '"')
+exports.handler = argv => {
+  if (argv.verbose) console.info(`getting id of ${argv.type} "${argv.name}"`);
   ht.getIdFromName(argv.type, argv.name, argv)
     .then(output.handler.bind(output, argv))
-      .catch(console.error.bind(console))
+    .catch(console.error.bind(console))
 }

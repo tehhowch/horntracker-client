@@ -1,58 +1,53 @@
-var Promise = require('bluebird')
-var request = require('./rawRequest')
-var data = require('./data')
-var utils = require('./utils')
-var htmenu = require('../cache/htmenu')
+const request = require('./rawRequest');
+const data = require('./data');
+const utils = require('./utils');
+const htmenu = require('../cache/htmenu');
 
-module.exports = function (type, name, opts) {
-  if (!type) throw new Error('missing type!')
-  if (!name) throw new Error('missing name!')
+module.exports = (type, name, opts) => {
+  if (!type) throw new Error('missing type!');
+  if (!name) throw new Error('missing name!');
 
   // if we are asked for id instead of name, just return it
-  if (!Number.isNaN(+name)) return Promise.resolve({ id: +name })
+  if (!Number.isNaN(+name)) return Promise.resolve({ id: +name });
 
-  type = utils.prepareType(type)
-  name = utils.prepareName(type, name)
+  type = utils.prepareType(type);
+  name = utils.prepareName(type, name);
 
-  return Promise
-    .try(function () {
-      // first try with the short cache
-      if (data.cached[ type ]) {
-        if (name in data.cached[ type ]) {
-          return { id: data.cached[ type ][ name ] }
-        }
-      }
+  return new Promise((resolve, reject) => {
+    // first try with the short cache.
+    const cachedDataType = data.cached[ type ];
+    if (cachedDataType && cachedDataType.hasOwnProperty(name)) {
+      resolve({id: cachedDataType[name]});
+      return;
+    }
 
-      // then try with the htmenu cache
-      for (var i = 0, l1 = htmenu.length; i < l1; i++) {
-        var cacheType = utils.prepareType(htmenu[ i ].name)
-        if (cacheType === type) {
-          var items = htmenu[ i ].data
-          for (var j = 0, l2 = items.length; j < l2; j++) {
-            var cacheName = utils.prepareName(type, items[ j ].name)
-            if (cacheName === name) {
-              return Promise.resolve({ id: items[ j ].value })
-            }
+    // then try with the htmenu cache
+    for (const field of htmenu) {
+      const cacheType = utils.prepareType(field.name);
+      if (cacheType === type) {
+        for (const item of field.data) {
+          const cacheName = utils.prepareName(type, item.name);
+          if (cacheName === name) {
+            resolve({id: item.value});
+            return;
           }
-          break
         }
+        break;
       }
+    }
 
-      console.error('Can\'t find cached id for ', type, '/', name, 'Trying to request from HT')
-
-      // finally hope the api will work
-      return request(opts, {
-        f: 'getIdFromName',
-        vars: {
-          type: type,
-          name: name
-        }
-      })
-        .then(function (body) {
-          if (body && body.id) {
-            body.id = +body.id
-          }
-          return body
-        })
-    })
+    // Item was not in cache, query for it.
+    console.warn(`Can't find cached id for ${type} / ${name} -- querying HT.`);
+    request(opts, {
+      f: "getIdFromName",
+      vars: {
+        type, name
+      }
+    }).then(body => {
+      if (body && body.id) {
+        body.id = +body.id;
+      }
+      resolve(body);
+    });
+  });
 }
